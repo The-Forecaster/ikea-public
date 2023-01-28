@@ -15,9 +15,13 @@ import net.minecraft.util.Hand;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
+import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket;
+import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.BoatPaddleStateC2SPacket;
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInputC2SPacket;
+import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
@@ -31,16 +35,17 @@ public class IKEADupe extends meteordevelopment.meteorclient.systems.modules.Mod
     private final TimerUtils timer;
 
     public IKEADupe() {
-        super(IKEA.DUPES, "ikea-dupe", "Does the boat dupe. (Make sure an alt or your friend is in render distance for it to work)");
+        super(IKEA.DUPES, "ikea-dupe",
+                "Does the boat dupe. (Make sure an alt or your friend is in render distance for it to work)");
 
         /* 34 */ this.timer = new TimerUtils();
 
         /* 36 */ this.sgGeneral = this.settings.getDefaultGroup();
         /* 37 */ this.rotate = this.sgGeneral.add((new BoolSetting.Builder()
-                        /* 38 */ .name("rotate"))
-                        /* 39 */ .description("Faces the boat.")
-                        /* 40 */ .defaultValue(Boolean.valueOf(true))
-                        /* 41 */ .build());
+                /* 38 */ .name("rotate"))
+                /* 39 */ .description("Faces the boat.")
+                /* 40 */ .defaultValue(Boolean.valueOf(true))
+                /* 41 */ .build());
     }
 
     private final SettingGroup sgGeneral;
@@ -76,10 +81,10 @@ public class IKEADupe extends meteordevelopment.meteorclient.systems.modules.Mod
 
                 if (this.timer.hasReached(100L)) {
                     sendDismountPackets(nearestBoat);
-                    if (this.mc.currentScreen instanceof net.minecraft.client.gui.screen.ingame.HandledScreen) {
-                        HandledScreen<?> handledScreen = (net.minecraft.client.gui.screen.ingame.HandledScreen<?>) this.mc.currentScreen;
-                        /* 74 */ if (handledScreen instanceof net.minecraft.client.gui.screen.ingame.GenericContainerScreen
-                                && nearestBoat.hasPassenger((net.minecraft.entity.Entity) this.mc.player)) {
+                    if (this.mc.currentScreen instanceof HandledScreen) {
+                        HandledScreen<?> handledScreen = (HandledScreen<?>) this.mc.currentScreen;
+                        /* 74 */ if (handledScreen instanceof GenericContainerScreen
+                                && nearestBoat.hasPassenger((Entity) this.mc.player)) {
                             /* 76 */ sendDismountPackets(nearestBoat);
                         }
                     }
@@ -102,11 +107,11 @@ public class IKEADupe extends meteordevelopment.meteorclient.systems.modules.Mod
                 ChestBoatEntity nearestBoat = (ChestBoatEntity) entity;
                 if (PlayerUtils.distanceTo(nearestBoat.getPos()) <= 5.5D
                         && !nearestBoat.hasPassenger((net.minecraft.entity.Entity) this.mc.player)) {
-                    if (this.mc.currentScreen instanceof net.minecraft.client.gui.screen.ingame.HandledScreen) {
-                        HandledScreen<?> handledScreen = (net.minecraft.client.gui.screen.ingame.HandledScreen<?>) this.mc.currentScreen;
-                        /* 98 */ if (handledScreen instanceof net.minecraft.client.gui.screen.ingame.GenericContainerScreen) {
-                            net.minecraft.client.gui.screen.ingame.GenericContainerScreen container = (net.minecraft.client.gui.screen.ingame.GenericContainerScreen) handledScreen;
-                            /* 99 */ net.minecraft.inventory.Inventory inv = ((net.minecraft.screen.GenericContainerScreenHandler) container
+                    if (this.mc.currentScreen instanceof HandledScreen) {
+                        HandledScreen<?> handledScreen = (HandledScreen<?>) this.mc.currentScreen;
+                        /* 98 */ if (handledScreen instanceof GenericContainerScreen) {
+                            GenericContainerScreen container = (GenericContainerScreen) handledScreen;
+                            /* 99 */ net.minecraft.inventory.Inventory inv = ((GenericContainerScreenHandler) container
                                     .getScreenHandler()).getInventory();
                             /* 100 */ if (!inv.isEmpty()) {
                                 /* 101 */ for (int i = 0; i < inv.size(); i++) {
@@ -129,26 +134,26 @@ public class IKEADupe extends meteordevelopment.meteorclient.systems.modules.Mod
 
     @EventHandler
     private void onScreenOpen(OpenScreenEvent event) {
-        /* 119 */ if (event.screen instanceof net.minecraft.client.gui.screen.DisconnectedScreen) {
+        /* 119 */ if (event.screen instanceof DisconnectedScreen) {
             /* 120 */ toggle();
         }
     }
 
     public void sit(ChestBoatEntity boat) {
-        /* 125 */ interact((net.minecraft.entity.Entity) boat);
+        /* 125 */ interact((Entity) boat);
     }
 
-    private void interact(net.minecraft.entity.Entity entity) {
+    private void interact(Entity entity) {
         /* 128 */ assert this.mc.interactionManager != null;
         /* 129 */ if (((Boolean) this.rotate.get()).booleanValue()) {
             Rotations.rotate(Rotations.getYaw(entity), Rotations.getPitch(entity), -100,
                     () -> this.mc.interactionManager.interactEntity(
-                            (net.minecraft.entity.player.PlayerEntity) this.mc.player, entity,
-                            net.minecraft.util.Hand.MAIN_HAND));
+                            (PlayerEntity) this.mc.player, entity,
+                            Hand.MAIN_HAND));
         }
         /* 130 */ else {
-            this.mc.interactionManager.interactEntity((net.minecraft.entity.player.PlayerEntity) this.mc.player, entity,
-                    net.minecraft.util.Hand.MAIN_HAND);
+            this.mc.interactionManager.interactEntity((PlayerEntity) this.mc.player, entity,
+                    Hand.MAIN_HAND);
         }
 
     }
@@ -157,7 +162,7 @@ public class IKEADupe extends meteordevelopment.meteorclient.systems.modules.Mod
         /* 134 */ assert this.mc.player != null;
         if (this.mc.currentScreen instanceof HandledScreen) {
             HandledScreen<?> handledScreen = (HandledScreen<?>) this.mc.currentScreen;
-            if (handledScreen instanceof net.minecraft.client.gui.screen.ingame.GenericContainerScreen)
+            if (handledScreen instanceof GenericContainerScreen)
                 return;
         }
         this.mc.player.openRidingInventory();
@@ -167,15 +172,15 @@ public class IKEADupe extends meteordevelopment.meteorclient.systems.modules.Mod
         assert this.mc.player != null;
         assert this.handler != null;
         this.handler.sendPacket((Packet<?>) new PlayerInputC2SPacket(1.0F, 1.0F, false, true));
-        this.handler.sendPacket((Packet<?>) new net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket((net.minecraft.entity.Entity) boat));
-        this.handler.sendPacket((Packet<?>) new net.minecraft.network.packet.c2s.play.BoatPaddleStateC2SPacket(
-                        false, false));
+        this.handler.sendPacket((Packet<?>) new VehicleMoveC2SPacket((Entity) boat));
+        this.handler.sendPacket((Packet<?>) new BoatPaddleStateC2SPacket(
+                false, false));
         /* 147 */ this.handler.sendPacket(
-                (Packet<?>) new net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket(
+                (Packet<?>) new TeleportConfirmC2SPacket(
                         1));
         /* 148 */ this.handler.sendPacket(
                 (Packet<?>) new ClientCommandC2SPacket(
-                        (net.minecraft.entity.Entity) this.mc.player,
+                        (Entity) this.mc.player,
                         ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY));
     }
 }
