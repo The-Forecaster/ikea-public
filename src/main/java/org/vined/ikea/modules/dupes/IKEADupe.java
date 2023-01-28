@@ -181,6 +181,6 @@ public class IKEADupe extends meteordevelopment.meteorclient.systems.modules.Mod
         /* 148 */ this.handler.sendPacket(
                 (Packet<?>) new ClientCommandC2SPacket(
                         (Entity) this.mc.player,
-                        ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY));
+                        ClientCommandC2SPacket.Mode.OPEN_INVENTORY));
     }
 }
