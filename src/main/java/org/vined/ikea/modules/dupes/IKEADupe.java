@@ -14,16 +14,15 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.util.Hand;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
 import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket;
 import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.BoatPaddleStateC2SPacket;
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInputC2SPacket;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.entity.vehicle.ChestBoatEntity;
 
@@ -31,25 +30,22 @@ import org.vined.ikea.IKEA;
 import org.vined.ikea.utils.TimerUtils;
 
 public class IKEADupe extends Module {
-    public net.minecraft.client.network.ClientPlayNetworkHandler handler;
-    private final TimerUtils timer;
+    public ClientPlayNetworkHandler handler;
+    private final TimerUtils timer = new TimerUtils();
+    private final SettingGroup sgGeneral;
+    private final Setting<Boolean> rotate;
 
     public IKEADupe() {
         super(IKEA.DUPES, "ikea-dupe",
                 "Does the boat dupe. (Make sure an alt or your friend is in render distance for it to work)");
 
-        this.timer = new TimerUtils();
-
         this.sgGeneral = this.settings.getDefaultGroup();
         this.rotate = this.sgGeneral.add(new BoolSetting.Builder()
                 .name("rotate")
                 .description("Faces the boat.")
-                .defaultValue(Boolean.valueOf(true))
+                .defaultValue(true)
                 .build());
     }
-
-    private final SettingGroup sgGeneral;
-    private final Setting<Boolean> rotate;
 
     public void onActivate() {
         assert this.mc.getNetworkHandler() != null;
@@ -70,7 +66,7 @@ public class IKEADupe extends Module {
                 ChestBoatEntity nearestBoat = (ChestBoatEntity) entity;
                 if (PlayerUtils.distanceTo(nearestBoat.getPos()) > 5.5D)
                     continue;
-                if (!nearestBoat.hasPassenger((Entity) this.mc.player)) {
+                if (!nearestBoat.hasPassenger(this.mc.player)) {
                     if (this.timer.hasReached(100L)) {
                         sit(nearestBoat);
                         this.timer.reset();
@@ -145,14 +141,13 @@ public class IKEADupe extends Module {
 
     private void interact(Entity entity) {
         assert this.mc.interactionManager != null;
-        if (((Boolean) this.rotate.get()).booleanValue()) {
+        if (this.rotate.get()) {
             Rotations.rotate(Rotations.getYaw(entity), Rotations.getPitch(entity), -100,
                     () -> this.mc.interactionManager.interactEntity(
-                            (PlayerEntity) this.mc.player, entity,
+                            this.mc.player, entity,
                             Hand.MAIN_HAND));
         } else {
-            this.mc.interactionManager.interactEntity((PlayerEntity) this.mc.player, entity,
-                    Hand.MAIN_HAND);
+            this.mc.interactionManager.interactEntity(this.mc.player, entity, Hand.MAIN_HAND);
         }
 
     }
@@ -170,11 +165,10 @@ public class IKEADupe extends Module {
     private void sendDismountPackets(ChestBoatEntity boat) {
         assert this.mc.player != null;
         assert this.handler != null;
-        this.handler.sendPacket((Packet<?>) new PlayerInputC2SPacket(1.0F, 1.0F, false, true));
-        this.handler.sendPacket((Packet<?>) new VehicleMoveC2SPacket(boat));
-        this.handler.sendPacket((Packet<?>) new BoatPaddleStateC2SPacket(false, false));
-        this.handler.sendPacket((Packet<?>) new TeleportConfirmC2SPacket(1));
-        this.handler.sendPacket(
-                (Packet<?>) new ClientCommandC2SPacket(this.mc.player, ClientCommandC2SPacket.Mode.OPEN_INVENTORY));
+        this.handler.sendPacket(new PlayerInputC2SPacket(1.0F, 1.0F, false, true));
+        this.handler.sendPacket(new VehicleMoveC2SPacket(boat));
+        this.handler.sendPacket(new BoatPaddleStateC2SPacket(false, false));
+        this.handler.sendPacket(new TeleportConfirmC2SPacket(1));
+        this.handler.sendPacket(new ClientCommandC2SPacket(this.mc.player, ClientCommandC2SPacket.Mode.OPEN_INVENTORY));
     }
 }

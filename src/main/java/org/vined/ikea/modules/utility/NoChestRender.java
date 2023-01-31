@@ -22,7 +22,7 @@ public class NoChestRender extends Module {
             .add(new IntSetting.Builder()
                     .name("render-radius")
                     .description("The radius in which the storage blocks will render.")
-                    .defaultValue(Integer.valueOf(0))
+                    .defaultValue(0)
                     .min(0)
                     .sliderMax(128)
                     .build());
@@ -31,7 +31,7 @@ public class NoChestRender extends Module {
             .add(new IntSetting.Builder()
                     .name("party-min-radius")
                     .description("The minimum radius party mode will change to.")
-                    .defaultValue(Integer.valueOf(0))
+                    .defaultValue(0)
                     .min(0)
                     .max(128)
                     .sliderMax(128)
@@ -41,7 +41,7 @@ public class NoChestRender extends Module {
             .add(new IntSetting.Builder()
                     .name("party-max-radius")
                     .description("The maximum radius party mode will change to.")
-                    .defaultValue(Integer.valueOf(64))
+                    .defaultValue(64)
                     .min(1)
                     .max(128)
                     .sliderMax(128)
@@ -50,7 +50,7 @@ public class NoChestRender extends Module {
     private final Setting<Boolean> partyMode = this.sgParty.add(new BoolSetting.Builder()
             .name("party-mode")
             .description("Constantly changes the radius")
-            .defaultValue(Boolean.valueOf(false))
+            .defaultValue(false)
             .build());
 
     private boolean retreat = false;
@@ -64,8 +64,7 @@ public class NoChestRender extends Module {
         if (this.partyMode.get()) {
             if (this.partyModeMin.get() > this.partyModeMax.get()) {
                 info(
-                        "The party mode minimum can't be bigger than the party mode maximum, setting the minimum to 0...",
-                        new Object[0]);
+                        "The party mode minimum can't be bigger than the party mode maximum, setting the minimum to 0...");
                 this.partyModeMin.set(0);
                 return;
             }
