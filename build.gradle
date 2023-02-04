@@ -10,12 +10,12 @@ group = project.maven_group
 
 repositories {
     maven {
-        name = "meteor-maven"
-        url = "https://maven.meteordev.org/releases"
+        name = 'meteor-maven'
+        url = 'https://maven.meteordev.org/releases'
     }
     maven {
-        name = "meteor-maven-snapshots"
-        url = "https://maven.meteordev.org/snapshots"
+        name = 'meteor-maven-snapshots'
+        url = 'https://maven.meteordev.org/snapshots'
     }
 }
 
@@ -30,11 +30,11 @@ dependencies {
 }
 
 processResources {
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version, "mc_version": project.minecraft_version
+    filesMatching('fabric.mod.json') {
+        expand 'version': project.version, 'mc_version': project.minecraft_version
     }
 }
 
 tasks.withType(JavaCompile).configureEach {
-    it.options.encoding("UTF-8")
+    it.options.encoding('UTF-8')
 }

@@ -16,7 +16,7 @@ import net.minecraft.item.Item;
 import net.minecraft.screen.GenericContainerScreenHandler;
 import org.vined.ikea.IKEA;
 
-public class AutoItemMove extends Module {
+public final class AutoItemMove extends Module {
     private final SettingGroup sgGeneral = this.settings.getDefaultGroup();
     private final Setting<List<Item>> items = this.sgGeneral
             .add(new ItemListSetting.Builder()
@@ -29,7 +29,7 @@ public class AutoItemMove extends Module {
     }
 
     @EventHandler
-    private void onTick(TickEvent.Post event) {
+    private final void onTick(TickEvent.Post event) {
         assert this.mc.player != null;
         ScreenHandler handler = this.mc.player.currentScreenHandler;
         if (handler instanceof GenericContainerScreenHandler || handler instanceof ShulkerBoxScreenHandler) {
@@ -37,17 +37,16 @@ public class AutoItemMove extends Module {
         }
     }
 
-    private int getRows(ScreenHandler handler) {
-        return (handler instanceof GenericContainerScreenHandler) ? ((GenericContainerScreenHandler) handler).getRows()
-                : 3;
+    private final int getRows(ScreenHandler handler) {
+        return (handler instanceof GenericContainerScreenHandler) ? ((GenericContainerScreenHandler) handler).getRows() : 3;
     }
 
-    public void moveItems(ScreenHandler handler) {
+    public final void moveItems(ScreenHandler handler) {
         int playerInvOffset = getRows(handler) * 9;
         MeteorExecutor.execute(() -> moveSlots(handler, playerInvOffset, playerInvOffset + 36));
     }
 
-    private void moveSlots(ScreenHandler handler, int start, int end) {
+    private final void moveSlots(ScreenHandler handler, int start, int end) {
         for (int i = start; i < end; i++) {
             Slot slot = handler.getSlot(i);
             if (slot.hasStack() && this.items.get().contains(slot.getStack().getItem())) {

@@ -29,15 +29,14 @@ import net.minecraft.entity.vehicle.ChestBoatEntity;
 import org.vined.ikea.IKEA;
 import org.vined.ikea.utils.TimerUtils;
 
-public class IKEADupe extends Module {
-    public ClientPlayNetworkHandler handler;
+public final class IKEADupe extends Module {
+    private ClientPlayNetworkHandler handler;
     private final TimerUtils timer = new TimerUtils();
     private final SettingGroup sgGeneral;
     private final Setting<Boolean> rotate;
 
     public IKEADupe() {
-        super(IKEA.DUPES, "ikea-dupe",
-                "Does the boat dupe. (Make sure an alt or your friend is in render distance for it to work)");
+        super(IKEA.DUPES, "ikea-dupe", "Does the boat dupe. (Make sure an alt or your friend is in render distance for it to work)");
 
         this.sgGeneral = this.settings.getDefaultGroup();
         this.rotate = this.sgGeneral.add(new BoolSetting.Builder()
@@ -47,17 +46,17 @@ public class IKEADupe extends Module {
                 .build());
     }
 
-    public void onActivate() {
+    public final void onActivate() {
         assert this.mc.getNetworkHandler() != null;
         this.handler = this.mc.getNetworkHandler();
     }
 
-    public void onDeactivate() {
+    public final void onDeactivate() {
         this.timer.reset();
     }
 
     @EventHandler(priority = 200)
-    private void onTickBoat(TickEvent.Post event) {
+    private final void onTickBoat(TickEvent.Post event) {
         assert this.mc.world != null;
         assert this.mc.player != null;
 
@@ -79,8 +78,7 @@ public class IKEADupe extends Module {
                     sendDismountPackets(nearestBoat);
                     if (this.mc.currentScreen instanceof HandledScreen) {
                         HandledScreen<?> handledScreen = (HandledScreen<?>) this.mc.currentScreen;
-                        if (handledScreen instanceof GenericContainerScreen
-                                && nearestBoat.hasPassenger((Entity) this.mc.player)) {
+                        if (handledScreen instanceof GenericContainerScreen && nearestBoat.hasPassenger(this.mc.player)) {
                             sendDismountPackets(nearestBoat);
                         }
                     }
@@ -93,7 +91,7 @@ public class IKEADupe extends Module {
     }
 
     @EventHandler(priority = 100)
-    private void onTickThrow(TickEvent.Post event) {
+    private final void onTickThrow(TickEvent.Post event) {
         assert this.mc.world != null;
         assert this.mc.interactionManager != null;
         assert this.mc.player != null;
@@ -102,7 +100,7 @@ public class IKEADupe extends Module {
             if (entity instanceof ChestBoatEntity) {
                 ChestBoatEntity nearestBoat = (ChestBoatEntity) entity;
                 if (PlayerUtils.distanceTo(nearestBoat.getPos()) <= 5.5D
-                        && !nearestBoat.hasPassenger((Entity) this.mc.player)) {
+                        && !nearestBoat.hasPassenger(this.mc.player)) {
                     if (this.mc.currentScreen instanceof HandledScreen) {
                         HandledScreen<?> handledScreen = (HandledScreen<?>) this.mc.currentScreen;
                         if (handledScreen instanceof GenericContainerScreen) {
@@ -124,22 +122,22 @@ public class IKEADupe extends Module {
     }
 
     @EventHandler
-    private void onGameLeft(GameLeftEvent event) {
+    private final void onGameLeft(GameLeftEvent event) {
         toggle();
     }
 
     @EventHandler
-    private void onScreenOpen(OpenScreenEvent event) {
+    private final void onScreenOpen(OpenScreenEvent event) {
         if (event.screen instanceof DisconnectedScreen) {
             toggle();
         }
     }
 
-    public void sit(ChestBoatEntity boat) {
-        interact((Entity) boat);
+    public final void sit(ChestBoatEntity boat) {
+        interact(boat);
     }
 
-    private void interact(Entity entity) {
+    private final void interact(Entity entity) {
         assert this.mc.interactionManager != null;
         if (this.rotate.get()) {
             Rotations.rotate(Rotations.getYaw(entity), Rotations.getPitch(entity), -100,
@@ -152,7 +150,7 @@ public class IKEADupe extends Module {
 
     }
 
-    private void boatInventory() {
+    private final void boatInventory() {
         assert this.mc.player != null;
         if (this.mc.currentScreen instanceof HandledScreen) {
             HandledScreen<?> handledScreen = (HandledScreen<?>) this.mc.currentScreen;
@@ -162,7 +160,7 @@ public class IKEADupe extends Module {
         this.mc.player.openRidingInventory();
     }
 
-    private void sendDismountPackets(ChestBoatEntity boat) {
+    private final void sendDismountPackets(ChestBoatEntity boat) {
         assert this.mc.player != null;
         assert this.handler != null;
         this.handler.sendPacket(new PlayerInputC2SPacket(1.0F, 1.0F, false, true));

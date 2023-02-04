@@ -14,7 +14,7 @@ import net.minecraft.block.entity.ChestBlockEntity;
 
 import org.vined.ikea.IKEA;
 
-public class NoChestRender extends Module {
+public final class NoChestRender extends Module {
     private final SettingGroup sgGeneral = this.settings.getDefaultGroup();
     private final SettingGroup sgParty = this.settings.createGroup("Party Mode");
 
@@ -60,11 +60,10 @@ public class NoChestRender extends Module {
     }
 
     @EventHandler
-    private void onTick(TickEvent.Pre event) {
+    private final void onTick(TickEvent.Pre event) {
         if (this.partyMode.get()) {
             if (this.partyModeMin.get() > this.partyModeMax.get()) {
-                info(
-                        "The party mode minimum can't be bigger than the party mode maximum, setting the minimum to 0...");
+                info("The party mode minimum can't be bigger than the party mode maximum, setting the minimum to 0...");
                 this.partyModeMin.set(0);
                 return;
             }
@@ -83,7 +82,7 @@ public class NoChestRender extends Module {
     }
 
     @EventHandler
-    private void onRenderBlockEntity(RenderBlockEntityEvent event) {
+    private final void onRenderBlockEntity(RenderBlockEntityEvent event) {
         BlockEntity block = event.blockEntity;
         if (block instanceof ChestBlockEntity && PlayerUtils.distanceTo(block.getPos()) > this.radius.get())
             event.cancel();

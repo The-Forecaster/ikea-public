@@ -10,13 +10,13 @@ import org.vined.ikea.modules.utility.AutoItemMove;
 import org.vined.ikea.modules.utility.DubCounter;
 import org.vined.ikea.modules.utility.NoChestRender;
 
-public class IKEA extends MeteorAddon {
+public final class IKEA extends MeteorAddon {
     public static final Logger LOG = LogUtils.getLogger();
     public static final Category UTILITY = new Category("IKEA Utility");
     public static final Category DUPES = new Category("IKEA Dupes");
-    public static final Category MISC = new Category("IKEA Misc");
 
-    public void onInitialize() {
+    @Override
+    public final void onInitialize() {
         LOG.info("Initializing IKEA Addon");
         Modules.get().add(new IKEADupe());
         Modules.get().add(new NoChestRender());
@@ -24,12 +24,14 @@ public class IKEA extends MeteorAddon {
         Modules.get().add(new AutoItemMove());
     }
 
-    public void onRegisterCategories() {
+    @Override
+    public final void onRegisterCategories() {
         Modules.registerCategory(UTILITY);
         Modules.registerCategory(DUPES);
     }
 
-    public String getPackage() {
+    @Override
+    public final String getPackage() {
         return "org.vined.ikea";
     }
 }
