@@ -167,6 +167,6 @@ public final class IKEADupe extends Module {
         this.handler.sendPacket(new VehicleMoveC2SPacket(boat));
         this.handler.sendPacket(new BoatPaddleStateC2SPacket(false, false));
         this.handler.sendPacket(new TeleportConfirmC2SPacket(1));
-        this.handler.sendPacket(new ClientCommandC2SPacket(this.mc.player, ClientCommandC2SPacket.Mode.OPEN_INVENTORY));
+        this.handler.sendPacket(new ClientCommandC2SPacket(this.mc.player, ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY));
     }
 }
